@@ -114,6 +114,10 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$PUBLISH" = true ]; then
+            [ "$REPOSITORY" = "deepseek-ai/deepseek-harness" ] || {
+              echo "::error::Publication is disabled in reference forks."
+              exit 1
+            }
             [ -n "$PYPI_PUBLISHER_REPOSITORY" ] || {
               echo "::error::Set the repository variable PYPI_PUBLISHER_REPOSITORY before publication."
               exit 1
@@ -180,7 +184,7 @@ jobs:
 
   publish-runtime:
     name: Publish runtime wheels to public PyPI
-    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    if: github.event_name == 'workflow_dispatch' && inputs.publish && github.repository == 'deepseek-ai/deepseek-harness'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -215,7 +219,7 @@ jobs:
   # to overwrite the runtime release.
   publish-sdk:
     name: Publish SDK wheel to public PyPI
-    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    if: github.event_name == 'workflow_dispatch' && inputs.publish && github.repository == 'deepseek-ai/deepseek-harness'
     needs: [validate, publish-runtime]
     runs-on: ubuntu-latest
     timeout-minutes: 10
